@@ -90,10 +90,10 @@ class PostData extends Component {
     let calculatedAmount = parseFloat(this.state.amount);
 
     // Calculate the total price based on the amount, price per kg, and price per bottle
-    //let totalPrice = calculatedAmount * parseFloat(this.state.pricePerKg);
-    //if (this.state.own_bottle) {
-    //  totalPrice += calculatedAmount * parseFloat(this.state.pricePerBottle);
-   // }
+    let totalPrice = calculatedAmount * parseFloat(this.state.pricePerKg);
+    if (this.state.own_bottle) {
+      totalPrice -= calculatedAmount * parseFloat(this.state.pricePerBottle);
+    }
 
     // Create the payment link with the calculated amount and names
     let { first_name, second_name } = this.state;
