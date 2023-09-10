@@ -1,16 +1,18 @@
-// Login.js
 import React, { useState } from 'react';
 
 function Login({ onLogin }) {
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Check if the entered password is correct (you can hardcode it for now)
+    // Simulate an API call to check the password (replace with actual authentication logic)
     if (password === '123') {
+      // Successful login
+      setError('');
       onLogin();
     } else {
-      alert('Incorrect password. Please try again.');
+      setError('Incorrect password. Please try again.');
     }
   };
 
@@ -28,6 +30,7 @@ function Login({ onLogin }) {
         </label>
         <button type="submit">Login</button>
       </form>
+      {error && <p className="error">{error}</p>}
     </div>
   );
 }
