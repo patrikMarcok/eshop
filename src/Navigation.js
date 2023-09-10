@@ -14,6 +14,13 @@ function Navigation() {
           <li>
             <Link to="/post">Post Data</Link>
           </li>
+          <li>
+            <Link to="/history">History</Link>
+          </li>
+          <li>
+            <Link to="/login">Login</Link>
+          </li>
+          
         </ul>
       </div>
     </div>

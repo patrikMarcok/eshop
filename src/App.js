@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import GetData from './GetData';
 import PostData from './PostData';
 import Navigation from './Navigation';
+import CompletedData from './History';
 
 function App() {
   return (
@@ -13,6 +14,9 @@ function App() {
       <Routes>
         <Route path="/" element={<GetData />} />
         <Route path="/post" element={<PostData />} />
+        <Route path="/history" element={<CompletedData />} />
+        
+        
       </Routes>
       </div>
       
