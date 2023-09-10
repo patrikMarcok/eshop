@@ -1,5 +1,12 @@
 import React, { Component } from 'react';
-import { getFirestore, collection, addDoc } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  getDoc,
+} from 'firebase/firestore';
 import firebaseApp from './firebase';
 
 class PostData extends Component {
@@ -13,7 +20,33 @@ class PostData extends Component {
       own_bottle: false,
       showSummary: false, // To control the summary popup
       totalToPay: 0,
+      iban: '', // IBAN from Firestore
+      pricePerKg: 0, // Price per kg from Firestore
+      pricePerBottle: 0, // Price per bottle from Firestore
     };
+  }
+
+  componentDidMount() {
+    // Fetch IBAN, price per kg, and price per bottle from Firestore "settings" collection
+    const db = getFirestore(firebaseApp);
+    const settingsDocRef = doc(db, 'settings', 'settingsData'); // Replace with your document ID
+
+    getDoc(settingsDocRef)
+      .then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const settingsData = docSnapshot.data();
+          this.setState({
+            iban: settingsData.iban,
+            pricePerKg: settingsData.pricePerKg,
+            pricePerBottle: settingsData.pricePerBottle,
+          });
+        } else {
+          console.log('No such document!');
+        }
+      })
+      .catch((error) => {
+        console.log('Error fetching document:', error);
+      });
   }
 
   handleChange = (event) => {
@@ -30,17 +63,23 @@ class PostData extends Component {
     event.preventDefault();
 
     // Check if the "Amount" field contains only numbers
-    const amountPattern = /^[0-9]+$/;
+    let amountPattern = /^[0-9]+$/;
     if (!amountPattern.test(this.state.amount)) {
       alert('Please enter a valid amount (numbers only)');
       return; // Prevent submitting invalid data
     }
 
     // Calculate the payment amount based on the user's input
-    const calculatedAmount = parseFloat(this.state.amount) * 1;
+    let calculatedAmount = parseFloat(this.state.amount);
+
+    // Calculate the total price based on the amount, price per kg, and price per bottle
+    let totalPrice = calculatedAmount * parseFloat(this.state.pricePerKg);
+    if (this.state.own_bottle) {
+      totalPrice -= calculatedAmount * parseFloat(this.state.pricePerBottle);
+    }
 
     // Update the totalToPay in the state
-    this.setState({ totalToPay: calculatedAmount });
+    this.setState({ totalToPay: totalPrice });
 
     // Show the summary popup
     this.setState({ showSummary: true });
@@ -48,13 +87,19 @@ class PostData extends Component {
 
   handlePayNow = async () => {
     // Calculate the payment amount based on the user's input
-    const calculatedAmount = parseFloat(this.state.amount) * 1;
+    let calculatedAmount = parseFloat(this.state.amount);
+
+    // Calculate the total price based on the amount, price per kg, and price per bottle
+    //let totalPrice = calculatedAmount * parseFloat(this.state.pricePerKg);
+    //if (this.state.own_bottle) {
+    //  totalPrice += calculatedAmount * parseFloat(this.state.pricePerBottle);
+   // }
 
     // Create the payment link with the calculated amount and names
-    const { first_name, second_name } = this.state;
-    const paymentLink = `https://payme.sk/?V=1&IBAN=LT563250093048589019&AM=${calculatedAmount}&CC=EUR&DT=20230908&MSG=ESHOP_${first_name}_${second_name}&CN=Marcok`;
+    let { first_name, second_name } = this.state;
+    let paymentLink = `https://payme.sk/?V=1&IBAN=${this.state.iban}&AM=${totalPrice}&CC=EUR&DT=20230908&MSG=ESHOP_${first_name}_${second_name}&CN=Marcok`;
 
-    // Add the data to Firestore
+    // Add the data to Firestore with the total amount
     const db = getFirestore(firebaseApp);
 
     try {
@@ -62,6 +107,7 @@ class PostData extends Component {
         first_name: this.state.first_name,
         second_name: this.state.second_name,
         amount: parseFloat(this.state.amount),
+        totalAmount: totalPrice, // Store the total amount in the database
         telephone_number: this.state.telephone_number,
         own_bottle: this.state.own_bottle,
       });
@@ -76,6 +122,15 @@ class PostData extends Component {
   };
 
   handlePayLater = async () => {
+    // Calculate the payment amount based on the user's input
+    let calculatedAmount = parseFloat(this.state.amount);
+
+    // Calculate the total price based on the amount, price per kg, and price per bottle
+    let totalPrice = calculatedAmount * parseFloat(this.state.pricePerKg);
+    if (!this.state.own_bottle) {
+      totalPrice += calculatedAmount * parseFloat(this.state.pricePerBottle);
+    }
+
     // Close the summary popup
     this.setState({ showSummary: false });
 
@@ -89,7 +144,7 @@ class PostData extends Component {
       totalToPay: 0, // Reset the totalToPay
     });
 
-    // Add the data to Firestore
+    // Add the data to Firestore with the total amount
     const db = getFirestore(firebaseApp);
 
     try {
@@ -97,6 +152,7 @@ class PostData extends Component {
         first_name: this.state.first_name,
         second_name: this.state.second_name,
         amount: parseFloat(this.state.amount),
+        totalAmount: totalPrice, // Store the total amount in the database
         telephone_number: this.state.telephone_number,
         own_bottle: this.state.own_bottle,
       });
@@ -110,10 +166,10 @@ class PostData extends Component {
   render() {
     return (
       <div>
-        <h1>Post data</h1>
+        <h1>Objednávka medu</h1>
         <form onSubmit={this.handleSubmit}>
           <label>
-            First name:
+            Meno:
             <input
               type="text"
               name="first_name"
@@ -124,7 +180,7 @@ class PostData extends Component {
           </label>
           <br />
           <label>
-            Second name:
+            Priezvisko:
             <input
               type="text"
               name="second_name"
@@ -134,7 +190,7 @@ class PostData extends Component {
           </label>
           <br />
           <label>
-            Amount:
+            Množstvo(kg):
             <input
               type="text"
               name="amount"
@@ -146,7 +202,7 @@ class PostData extends Component {
           </label>
           <br />
           <label>
-            Telephone Number:
+            Telefónne číslo:
             <input
               type="text"
               name="telephone_number"
@@ -157,7 +213,7 @@ class PostData extends Component {
           </label>
           <br />
           <label>
-            Own Bottle:
+            Prinesiem vlastné fľaše(osobný odber):
             <input
               type="checkbox"
               name="own_bottle"
@@ -166,7 +222,7 @@ class PostData extends Component {
             />
           </label>
           <br />
-          <button type="submit">Next</button>
+          <button type="submit">Ďalej</button>
         </form>
 
         {/* Summary Popup */}

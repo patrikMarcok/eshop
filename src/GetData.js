@@ -55,25 +55,38 @@ function GetData() {
   };
 
   return (
-    <div className="list-container">
+    <div className="table-container">
       <h1>Get Data</h1>
-      <ul>
-        {data
-          .filter((item) => !item.completed) // Filter non-completed items
-          .map((item) => (
-            <li key={item.id} className="list-item">
-              {item.first_name} - {item.second_name} - {item.amount}
-              {item.telephone_number && <span> - Telephone Number: {item.telephone_number}</span>}
-              {item.own_bottle && <span> - Own Bottle: Yes</span>}
-              {!item.completed && (
-                <button onClick={() => handleDelete(item.id)}>Delete</button>
-              )}
-              {!item.completed && (
-                <button onClick={() => handleComplete(item.id)}>Complete</button>
-              )}
-            </li>
-          ))}
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>First Name</th>
+            <th>Second Name</th>
+            <th>Price</th> {/* Updated label to "Price" */}
+            <th>Amount</th> {/* Displaying the original amount */}
+            <th>Telephone Number</th>
+            <th>Own Bottle</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data
+            .filter((item) => !item.completed) // Filter non-completed items
+            .map((item) => (
+              <tr key={item.id} className="table-row">
+                <td>{item.first_name}</td>
+                <td>{item.second_name}</td>
+                <td>{item.totalAmount || '-'}</td> {/* Display "Price" (totalAmount) */}
+                <td>{item.amount}</td> {/* Display the original amount */}
+                <td>{item.telephone_number || '-'}</td>
+                <td>{item.own_bottle ? 'Yes' : 'No'}</td>
+                <td>
+                  <button onClick={() => handleComplete(item.id)}>Complete</button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
     </div>
   );
 }

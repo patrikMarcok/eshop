@@ -60,21 +60,38 @@ function CompletedData() {
   };
 
   return (
-    <div className="list-container">
+    <div className="table-container">
       <h1>History</h1>
-      <ul>
-        {data.map((item) => (
-          <li key={item.id} className="list-item">
-            {item.first_name} - {item.second_name} - {item.amount}
-            {item.telephone_number && <span> - Telephone Number: {item.telephone_number}</span>}
-            {item.own_bottle && <span> - Own Bottle: Yes</span>}
-            <button onClick={() => handleUncomplete(item.id)}>Uncomplete</button>
-            <button onClick={() => handleDelete(item.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      <table>
+        <thead>
+          <tr>
+            <th>First Name</th>
+            <th>Second Name</th>
+            <th>Amount</th>
+            <th>Telephone Number</th>
+            <th>Own Bottle</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item) => (
+            <tr key={item.id} className="table-row">
+              <td>{item.first_name}</td>
+              <td>{item.second_name}</td>
+              <td>{item.amount}</td>
+              <td>{item.telephone_number || '-'}</td>
+              <td>{item.own_bottle ? 'Yes' : 'No'}</td>
+              <td>
+                <button onClick={() => handleUncomplete(item.id)}>Uncomplete</button>
+                <button onClick={() => handleDelete(item.id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
+  
 }
 
 export default CompletedData;

@@ -1,54 +1,111 @@
-/* styles.css */
-
-/* Style for the list container */
-.list-container {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Style for list items */
-  .list-item {
-    list-style: none;
-    background-color: #fff;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
-  }
-  
-
-  /* styles.css */
-
-.navigation {
-  display: flex;
-  background-color: #333; /* Background color for the entire left side */
-  color: #fff;
+/* Primary Colors */
+:root {
+  --primary-background: #f2c541; /* Yellow */
+  --primary-text: #4a2c0d; /* Brown */
 }
 
-.nav-box {
-  background-color: #555; /* Color box background */
-  padding: 20px;
-  width: 200px; /* Adjust the width as needed */
-}
-
-.nav-box h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.nav-box ul {
-  list-style: none;
+/* Body Styles */
+body {
+  background-color: var(--primary-background);
+  color: var(--primary-text);
+  font-family: Arial, sans-serif;
+  margin: 0;
   padding: 0;
 }
 
-.nav-box ul li {
-  margin-bottom: 10px;
+/* Header Styles */
+header {
+  background-color: var(--primary-text);
+  color: var(--primary-background);
+  padding: 20px;
+  text-align: center;
 }
 
-.nav-box ul li a {
-  color: #fff;
-  text-decoration: none;
+/* Navigation Menu Styles */
+nav {
+  background-color: var(--primary-text);
+  padding: 10px;
 }
+
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav li {
+  display: inline;
+  margin-right: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--primary-background);
+  font-weight: bold;
+}
+
+/* Button Styles */
+.button {
+  background-color: var(--primary-text);
+  color: var(--primary-background);
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Alternate Button Styles */
+.button.alt {
+  background-color: var(--primary-background);
+  color: var(--primary-text);
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--primary-text);
+  color: var(--primary-background);
+  padding: 20px;
+  border: 1px solid var(--primary-background);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* Media Query for Responsive Design */
+@media screen and (max-width: 768px) {
+  .card {
+    padding: 10px;
+  }
+}
+
+/* For Login and Post Components */
+.centered-container {
+  text-align: center;
+}
+
+.centered-content {
+  margin: 0 auto;
+  width: 50%; /* Adjust the width as needed */
+}
+/* For Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  background-color: #f2c541; /* Yellow */
+  color: #4a2c0d; /* Brown */
+  font-weight: bold;
+}
+
+/* Alternate row background color */
+tr:nth-child(even) {
+  background-color: #f7ebc6; /* Light Yellow */
+}
+
