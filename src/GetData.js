@@ -56,7 +56,7 @@ function GetData() {
 
   return (
     <div className="table-container">
-      <h1>Get Data</h1>
+      <h1>Orders</h1>
       <table>
         <thead>
           <tr>

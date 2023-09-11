@@ -5,6 +5,8 @@ import CompletedData from './History';
 import Login from './Login';
 import PostData from './PostData';
 import Settings from './Settings';
+import Contact from './Contact';
+
 
 
 function App() {
@@ -20,7 +22,7 @@ function App() {
   };
 
   return (
-    <Router>
+    <Router basename='/eshop'>
       <div className="App">
         <nav>
           <ul>
@@ -28,24 +30,29 @@ function App() {
               <React.Fragment>
               <li>
                 <Link to="/login">Login</Link>
-              </li>,
-              <li>
-                <Link to="/post">Post</Link>
               </li>
+              <li>
+                <Link to="/post">Nová objednávka</Link>
+              </li>
+              <li>
+                <Link to="/contact">Kontakt</Link>
+              </li>
+              
               </React.Fragment>
             ) : (
               <React.Fragment>
-                <li>
-                  <button onClick={handleLogout}>Logout</button>
-                </li>
+                
                 <li>
                   <Link to="/history">History</Link>
                 </li>
                 <li>
-                  <Link to="/">Get Data</Link>
+                  <Link to="/">Orders</Link>
                 </li>
                 <li>
                   <Link to="/settings">Settings</Link>
+                </li>
+                <li>
+                  <button onClick={handleLogout}>Logout</button>
                 </li>
               </React.Fragment>
             )}
@@ -72,6 +79,7 @@ function App() {
               path="/history"
               element={isLoggedIn ? <CompletedData /> : <Navigate to="/post" />}
             />
+            <Route path="/contact" element={<Contact/>} />
             <Route path="/settings" element={isLoggedIn ? <Settings /> : <Navigate to="/post" />} />
           </Routes>
         </div>

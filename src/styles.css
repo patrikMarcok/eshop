@@ -64,7 +64,7 @@ nav a {
 .card {
   background-color: var(--primary-text);
   color: var(--primary-background);
-  padding: 20px;
+  padding: š0px;
   border: 1px solid var(--primary-background);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 }
