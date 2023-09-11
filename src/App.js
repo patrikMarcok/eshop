@@ -6,6 +6,7 @@ import Login from './Login';
 import PostData from './PostData';
 import Settings from './Settings';
 import Contact from './Contact';
+import CustomerLogin from './CustomerLogin';
 
 
 
@@ -36,6 +37,9 @@ function App() {
               </li>
               <li>
                 <Link to="/contact">Kontakt</Link>
+              </li>
+              <li>
+                <Link to="/customerlogin">customer login</Link>
               </li>
               
               </React.Fragment>
@@ -80,6 +84,8 @@ function App() {
               element={isLoggedIn ? <CompletedData /> : <Navigate to="/post" />}
             />
             <Route path="/contact" element={<Contact/>} />
+            <Route path="/customerlogin" element={<CustomerLogin/>} />
+            
             <Route path="/settings" element={isLoggedIn ? <Settings /> : <Navigate to="/post" />} />
           </Routes>
         </div>

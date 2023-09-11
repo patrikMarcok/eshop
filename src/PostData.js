@@ -23,6 +23,7 @@ class PostData extends Component {
       iban: '', // IBAN from Firestore
       pricePerKg: 0, // Price per kg from Firestore
       pricePerBottle: 0, // Price per bottle from Firestore
+      orderComplete: false, // State to control the "Order Complete" message
     };
   }
 
@@ -132,7 +133,7 @@ class PostData extends Component {
     }
 
     // Close the summary popup
-    this.setState({ showSummary: false });
+    this.setState({ showSummary: false, orderComplete: true });
 
     // Clear the form after successfully adding the document
     this.setState({
@@ -235,6 +236,14 @@ class PostData extends Component {
             <p>Total to Pay: {this.state.totalToPay}</p>
             <button onClick={this.handlePayNow}>Pay Now</button>
             <button onClick={this.handlePayLater}>Pay Later</button>
+          </div>
+        )}
+
+        {/* Order Complete Message */}
+        {this.state.orderComplete && (
+          <div className="order-complete">
+            <h2>Objednávka prijatá!</h2>
+            <p>Zaplatiť môžete neskôr.</p>
           </div>
         )}
       </div>
