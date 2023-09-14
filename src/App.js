@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import GetData from './GetData';
 import CompletedData from './History';
@@ -8,6 +8,7 @@ import Settings from './Settings';
 import Contact from './Contact';
 import CustomerLogin from './CustomerLogin';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import CustomerOrders from './CustomerOrders';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,11 +26,8 @@ function App() {
   const handleAdminLogout = () => {
     setIsLoggedIn(false);
   };
-const handleCustomerLoginSet = () => {
-    setIsCustomerLoggedIn(true);
-    
-    console.log("isCustomerLoggedIn updated to true");
-
+useEffect (() => {
+    //setIsCustomerLoggedIn(true);
     const checkCustomerLoginStatus = async () => {
       const db = getFirestore(); // You might need to pass your firebaseApp here
 
@@ -45,6 +43,7 @@ const handleCustomerLoginSet = () => {
           // Check if the 'email' field is not equal to '-1' to determine if the customer is logged in
           if (userData.email !== '-1') {
             setIsCustomerLoggedIn(true);
+            console.log("isCustomerLoggedIn updated to true");
           } else {
             setIsCustomerLoggedIn(false);
           }
@@ -53,7 +52,7 @@ const handleCustomerLoginSet = () => {
         console.error('Error checking customer login status:', error);
       }
     };
-  };
+  })
   // Callback function to set the user as logged in as a customer
   const handleCustomerLogin = async () => {
     handleCustomerLoginSet();
@@ -81,6 +80,11 @@ const handleCustomerLoginSet = () => {
                 <li>
                   <Link to="/customerlogin">Customer Login</Link>
                 </li>
+                
+                <li>
+                  <Link to="/customerorders">My orders</Link>
+                </li>
+                
                 <li>
                   <Link to="/contact">Kontakt</Link>
                 </li>
@@ -147,6 +151,7 @@ const handleCustomerLoginSet = () => {
               element={isLoggedIn ? <CompletedData /> : <Navigate to="/post" />}
             />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/customerorders" element={<CustomerOrders />} />
             <Route
               path="/settings"
               element={isLoggedIn ? <Settings /> : <Navigate to="/post" />}
