@@ -99,6 +99,7 @@ function Settings() {
             required
           />
         </label>
+        <br></br>
         <button type="submit">Save Settings</button>
         {error && <p className="error">{error}</p>}
       </form>

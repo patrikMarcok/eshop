@@ -7,56 +7,109 @@ import PostData from './PostData';
 import Settings from './Settings';
 import Contact from './Contact';
 import CustomerLogin from './CustomerLogin';
-
-
+import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState(false);
 
-  // Callback function to set the user as logged in
-  const handleLogin = () => {
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
+
+  // Callback function to set the user as logged in as an admin
+  const handleAdminLogin = () => {
     setIsLoggedIn(true);
   };
-  // Callback function to log the user out
-  const handleLogout = () => {
+
+  // Callback function to log out as an admin
+  const handleAdminLogout = () => {
     setIsLoggedIn(false);
   };
+const handleCustomerLoginSet = () => {
+    setIsCustomerLoggedIn(true);
+    
+    console.log("isCustomerLoggedIn updated to true");
+
+    const checkCustomerLoginStatus = async () => {
+      const db = getFirestore(); // You might need to pass your firebaseApp here
+
+      // Replace 'users/actual' with the actual path to your user data in Firestore
+      const userDocRef = doc(db, 'users', 'actual');
+
+      try {
+        const userDocSnapshot = await getDoc(userDocRef);
+
+        if (userDocSnapshot.exists()) {
+          const userData = userDocSnapshot.data();
+
+          // Check if the 'email' field is not equal to '-1' to determine if the customer is logged in
+          if (userData.email !== '-1') {
+            setIsCustomerLoggedIn(true);
+          } else {
+            setIsCustomerLoggedIn(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking customer login status:', error);
+      }
+    };
+  };
+  // Callback function to set the user as logged in as a customer
+  const handleCustomerLogin = async () => {
+    handleCustomerLoginSet();
+
+  };
+
+  // Callback function to log out as a customer
+  const handleCustomerLogout = () => {
+    handleCustomerLoginSet();
+  };
+
+  
 
   return (
-    <Router basename='/eshop'>
+    <Router basename="/eshop">
       <div className="App">
         <nav>
           <ul>
-            {!isLoggedIn ? (
+            {!isCustomerLoggedIn && !isLoggedIn ? (
+              // Condition for not logged in
               <React.Fragment>
-              <li>
-                <Link to="/login">Login</Link>
-              </li>
-              <li>
-                <Link to="/post">Nová objednávka</Link>
-              </li>
-              <li>
-                <Link to="/contact">Kontakt</Link>
-              </li>
-              <li>
-                <Link to="/customerlogin">customer login</Link>
-              </li>
-              
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                
                 <li>
-                  <Link to="/history">History</Link>
+                  <Link to="/login">Admin Login</Link>
                 </li>
                 <li>
-                  <Link to="/">Orders</Link>
+                  <Link to="/customerlogin">Customer Login</Link>
+                </li>
+                <li>
+                  <Link to="/contact">Kontakt</Link>
+                </li>
+              </React.Fragment>
+            ) : isCustomerLoggedIn ? (
+              // Condition for logged in as a customer
+              <React.Fragment>
+                <li>
+                  <Link to="/post">Orders</Link>
+                </li>
+                
+              </React.Fragment>
+            ) : (
+              // Condition for logged in as an admin
+              <React.Fragment>
+                <li>
+                  <Link to="/post">Nová objednávka</Link>
+                </li>
+                <li>
+                  <Link to="/">Objednávky</Link>
+                </li>
+                <li>
+                  <Link to="/history">Historia</Link>
                 </li>
                 <li>
                   <Link to="/settings">Settings</Link>
                 </li>
                 <li>
-                  <button onClick={handleLogout}>Logout</button>
+                  <button onClick={handleAdminLogout}>Admin Logout</button>
                 </li>
               </React.Fragment>
             )}
@@ -73,7 +126,17 @@ function App() {
               path="/login"
               element={
                 !isLoggedIn ? (
-                  <Login onLogin={handleLogin} />
+                  <Login onLogin={handleAdminLogin} />
+                ) : (
+                  <Navigate to="/" />
+                )
+              }
+            />
+            <Route
+              path="/customerlogin"
+              element={
+                !isCustomerLoggedIn ? (
+                  <CustomerLogin onLogin={handleCustomerLogin} />
                 ) : (
                   <Navigate to="/" />
                 )
@@ -83,10 +146,11 @@ function App() {
               path="/history"
               element={isLoggedIn ? <CompletedData /> : <Navigate to="/post" />}
             />
-            <Route path="/contact" element={<Contact/>} />
-            <Route path="/customerlogin" element={<CustomerLogin/>} />
-            
-            <Route path="/settings" element={isLoggedIn ? <Settings /> : <Navigate to="/post" />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route
+              path="/settings"
+              element={isLoggedIn ? <Settings /> : <Navigate to="/post" />}
+            />
           </Routes>
         </div>
       </div>

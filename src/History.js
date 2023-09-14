@@ -68,6 +68,7 @@ function CompletedData() {
             <th>First Name</th>
             <th>Second Name</th>
             <th>Amount</th>
+            <th>Price</th>
             <th>Telephone Number</th>
             <th>Own Bottle</th>
             <th>Actions</th>
@@ -79,6 +80,7 @@ function CompletedData() {
               <td>{item.first_name}</td>
               <td>{item.second_name}</td>
               <td>{item.amount}</td>
+              <td>{item.totalAmount}</td>
               <td>{item.telephone_number || '-'}</td>
               <td>{item.own_bottle ? 'Yes' : 'No'}</td>
               <td>

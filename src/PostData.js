@@ -1,46 +1,45 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   getFirestore,
   collection,
   addDoc,
-  getDocs,
   doc,
   getDoc,
+  setDoc,
 } from 'firebase/firestore';
 import firebaseApp from './firebase';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
-class PostData extends Component {
-  constructor() {
-    super();
-    this.state = {
-      first_name: '',
-      second_name: '',
-      amount: '',
-      telephone_number: '', // Add telephone_number field
-      own_bottle: false,
-      showSummary: false, // To control the summary popup
-      totalToPay: 0,
-      iban: '', // IBAN from Firestore
-      pricePerKg: 0, // Price per kg from Firestore
-      pricePerBottle: 0, // Price per bottle from Firestore
-      orderComplete: false, // State to control the "Order Complete" message
-    };
-  }
+function PostData() {
+  const [first_name, setFirstName] = useState('');
+  const [second_name, setSecondName] = useState('');
+  const [email, setEmail] = useState('');
+  const [amount, setAmount] = useState('');
+  const [telephone_number, setTelephoneNumber] = useState('');
+  const [own_bottle, setOwnBottle] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [totalToPay, setTotalToPay] = useState(0);
+  const [iban, setIban] = useState('');
+  const [pricePerKg, setPricePerKg] = useState(0);
+  const [pricePerBottle, setPricePerBottle] = useState(0);
+  const [orderComplete, setOrderComplete] = useState(false);
 
-  componentDidMount() {
+  // Use the useLocation hook to get the state passed from the previous route
+  const location = useLocation();
+  const { state } = location;
+  const navigate = useNavigate();
+  useEffect(() => {
     // Fetch IBAN, price per kg, and price per bottle from Firestore "settings" collection
     const db = getFirestore(firebaseApp);
-    const settingsDocRef = doc(db, 'settings', 'settingsData'); // Replace with your document ID
+    const settingsDocRef = doc(db, 'settings', 'settingsData');
 
     getDoc(settingsDocRef)
       .then((docSnapshot) => {
         if (docSnapshot.exists()) {
           const settingsData = docSnapshot.data();
-          this.setState({
-            iban: settingsData.iban,
-            pricePerKg: settingsData.pricePerKg,
-            pricePerBottle: settingsData.pricePerBottle,
-          });
+          setIban(settingsData.iban);
+          setPricePerKg(settingsData.pricePerKg);
+          setPricePerBottle(settingsData.pricePerBottle);
         } else {
           console.log('No such document!');
         }
@@ -48,69 +47,110 @@ class PostData extends Component {
       .catch((error) => {
         console.log('Error fetching document:', error);
       });
-  }
 
-  handleChange = (event) => {
+    
+
+    // Check if the email in the Firestore database is "-1"
+    const userDocRef = doc(db, 'users', 'actual'); // Replace 'actual' with the actual document ID
+    getDoc(userDocRef)
+      .then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const userData = docSnapshot.data();
+          const userEmail = userData.email;
+
+          if (userEmail !== '-1') {
+            // Email is not "-1", so set the first name, last name, and email from the database
+            setFirstName(userData.firstName);
+            setSecondName(userData.lastName);
+            setEmail(userEmail);
+          }
+        } else {
+          console.log('No such document!');
+        }
+      })
+      .catch((error) => {
+        console.log('Error fetching user document:', error);
+      });
+  }, [state]);
+
+  const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
 
-    if (type === 'checkbox') {
-      this.setState({ [name]: checked });
-    } else {
-      this.setState({ [name]: value });
+    switch (name) {
+      case 'first_name':
+        setFirstName(value);
+        break;
+      case 'second_name':
+        setSecondName(value);
+        break;
+      case 'email':
+        setEmail(value);
+        break;
+      case 'amount':
+        setAmount(value);
+        break;
+      case 'telephone_number':
+        setTelephoneNumber(value);
+        break;
+      case 'own_bottle':
+        setOwnBottle(checked);
+        break;
+      default:
+        break;
     }
   };
 
-  handleSubmit = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     // Check if the "Amount" field contains only numbers
     let amountPattern = /^[0-9]+$/;
-    if (!amountPattern.test(this.state.amount)) {
+    if (!amountPattern.test(amount)) {
       alert('Please enter a valid amount (numbers only)');
       return; // Prevent submitting invalid data
     }
 
     // Calculate the payment amount based on the user's input
-    let calculatedAmount = parseFloat(this.state.amount);
+    let calculatedAmount = parseFloat(amount);
 
     // Calculate the total price based on the amount, price per kg, and price per bottle
-    let totalPrice = calculatedAmount * parseFloat(this.state.pricePerKg);
-    if (this.state.own_bottle) {
-      totalPrice -= calculatedAmount * parseFloat(this.state.pricePerBottle);
+    let totalPrice = calculatedAmount * parseFloat(pricePerKg);
+    if (!own_bottle) {
+      totalPrice += calculatedAmount * parseFloat(pricePerBottle);
     }
 
     // Update the totalToPay in the state
-    this.setState({ totalToPay: totalPrice });
+    setTotalToPay(totalPrice);
 
     // Show the summary popup
-    this.setState({ showSummary: true });
+    setShowSummary(true);
   };
 
-  handlePayNow = async () => {
+  const handlePayNow = async () => {
     // Calculate the payment amount based on the user's input
-    let calculatedAmount = parseFloat(this.state.amount);
+    let calculatedAmount = parseFloat(amount);
 
     // Calculate the total price based on the amount, price per kg, and price per bottle
-    let totalPrice = calculatedAmount * parseFloat(this.state.pricePerKg);
-    if (this.state.own_bottle) {
-      totalPrice -= calculatedAmount * parseFloat(this.state.pricePerBottle);
+    let totalPrice = calculatedAmount * parseFloat(pricePerKg);
+    if (!own_bottle) {
+      totalPrice += calculatedAmount * parseFloat(pricePerBottle);
     }
 
     // Create the payment link with the calculated amount and names
-    let { first_name, second_name } = this.state;
-    let paymentLink = `https://payme.sk/?V=1&IBAN=${this.state.iban}&AM=${totalPrice}&CC=EUR&DT=20230908&MSG=ESHOP_${first_name}_${second_name}&CN=Marcok`;
+    let paymentLink = `https://payme.sk/?V=1&IBAN=${iban}&AM=${totalPrice}&CC=EUR&DT=20230908&MSG=ESHOP_${first_name}_${second_name}&CN=Marcok`;
 
     // Add the data to Firestore with the total amount
     const db = getFirestore(firebaseApp);
 
     try {
       const docRef = await addDoc(collection(db, 'med'), {
-        first_name: this.state.first_name,
-        second_name: this.state.second_name,
-        amount: parseFloat(this.state.amount),
+        first_name,
+        second_name,
+        email,
+        amount: parseFloat(amount),
         totalAmount: totalPrice, // Store the total amount in the database
-        telephone_number: this.state.telephone_number,
-        own_bottle: this.state.own_bottle,
+        telephone_number,
+        own_bottle,
       });
 
       console.log('Document written with ID: ', docRef.id);
@@ -122,40 +162,41 @@ class PostData extends Component {
     window.open(paymentLink, '_blank');
   };
 
-  handlePayLater = async () => {
+  const handlePayLater = async () => {
     // Calculate the payment amount based on the user's input
-    let calculatedAmount = parseFloat(this.state.amount);
+    let calculatedAmount = parseFloat(amount);
 
     // Calculate the total price based on the amount, price per kg, and price per bottle
-    let totalPrice = calculatedAmount * parseFloat(this.state.pricePerKg);
-    if (!this.state.own_bottle) {
-      totalPrice += calculatedAmount * parseFloat(this.state.pricePerBottle);
+    let totalPrice = calculatedAmount * parseFloat(pricePerKg);
+    if (!own_bottle) {
+      totalPrice += calculatedAmount * parseFloat(pricePerBottle);
     }
 
     // Close the summary popup
-    this.setState({ showSummary: false, orderComplete: true });
+    setShowSummary(false);
+    setOrderComplete(true);
 
     // Clear the form after successfully adding the document
-    this.setState({
-      first_name: '',
-      second_name: '',
-      amount: '',
-      telephone_number: '', // Clear telephone_number
-      own_bottle: false,
-      totalToPay: 0, // Reset the totalToPay
-    });
+    setFirstName('');
+    setSecondName('');
+    setEmail('');
+    setAmount('');
+    setTelephoneNumber('');
+    setOwnBottle(false);
+    setTotalToPay(0);
 
     // Add the data to Firestore with the total amount
     const db = getFirestore(firebaseApp);
 
     try {
       const docRef = await addDoc(collection(db, 'med'), {
-        first_name: this.state.first_name,
-        second_name: this.state.second_name,
-        amount: parseFloat(this.state.amount),
+        first_name,
+        second_name,
+        email,
+        amount: parseFloat(amount),
         totalAmount: totalPrice, // Store the total amount in the database
-        telephone_number: this.state.telephone_number,
-        own_bottle: this.state.own_bottle,
+        telephone_number,
+        own_bottle,
       });
 
       console.log('Document written with ID: ', docRef.id);
@@ -164,91 +205,134 @@ class PostData extends Component {
     }
   };
 
-  render() {
-    return (
-      <div>
-        <h1>Objednávka medu</h1>
-        <form onSubmit={this.handleSubmit}>
-          <label>
-            Meno:
-            <input
-              type="text"
-              name="first_name"
-              value={this.state.first_name}
-              onChange={this.handleChange}
-              required // Make it a required field
-            />
-          </label>
-          <br />
-          <label>
-            Priezvisko:
-            <input
-              type="text"
-              name="second_name"
-              value={this.state.second_name}
-              onChange={this.handleChange}
-            />
-          </label>
-          <br />
-          <label>
-            Množstvo(kg):
-            <input
-              type="text"
-              name="amount"
-              value={this.state.amount}
-              onChange={this.handleChange}
-              pattern="[0-9]+" // Use the pattern attribute for numbers only
-              required // Make it a required field
-            />
-          </label>
-          <br />
-          <label>
-            Telefónne číslo:
-            <input
-              type="text"
-              name="telephone_number"
-              value={this.state.telephone_number}
-              onChange={this.handleChange}
-              required // Make it a required field
-            />
-          </label>
-          <br />
-          <label>
-            Prinesiem vlastné fľaše(osobný odber):
-            <input
-              type="checkbox"
-              name="own_bottle"
-              checked={this.state.own_bottle}
-              onChange={this.handleChange}
-            />
-          </label>
-          <br />
-          <button type="submit">Ďalej</button>
-        </form>
+  const handleLogout = async () => {
+    // Set email and other values in the Firestore database to "-1"
+    const db = getFirestore(firebaseApp);
+    const userDocRef = doc(db, 'users', 'actual'); // Replace 'actual' with the actual document ID
+    
+    try {
+      await setDoc(userDocRef, {
+        email: '-1',
+        firstName: '',
+        secondName: '',
+      });
+      navigate('/customerLogin')
+      // Clear the form and state
+      setFirstName('');
+      setSecondName('');
+      setEmail('');
+      setAmount('');
+      setTelephoneNumber('');
+      setOwnBottle(false);
+      setTotalToPay(0);
 
-        {/* Summary Popup */}
-        {this.state.showSummary && (
-          <div className="summary-popup">
-            <h2>Summary</h2>
-            <p>First Name: {this.state.first_name}</p>
-            <p>Second Name: {this.state.second_name}</p>
-            <p>Amount: {this.state.amount}</p>
-            <p>Total to Pay: {this.state.totalToPay}</p>
-            <button onClick={this.handlePayNow}>Pay Now</button>
-            <button onClick={this.handlePayLater}>Pay Later</button>
-          </div>
-        )}
+      console.log('User logged out successfully.');
+    } catch (error) {
+      console.error('Error logging out user:', error);
+    }
+  };
 
-        {/* Order Complete Message */}
-        {this.state.orderComplete && (
-          <div className="order-complete">
-            <h2>Objednávka prijatá!</h2>
-            <p>Zaplatiť môžete neskôr.</p>
-          </div>
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      {email !== '-1' && (
+        <div>
+          <h2>Welcome, {first_name}!</h2>
+          <button onClick={handleLogout}>Logout</button>
+        </div>
+      )}
+      <h3>Objednávka medu</h3>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Meno:
+          <input
+            type="text"
+            name="first_name"
+            value={first_name}
+            onChange={handleChange}
+            required // Make it a required field
+          />
+        </label>
+        <br />
+        <label>
+          Priezvisko:
+          <input
+            type="text"
+            name="second_name"
+            value={second_name}
+            onChange={handleChange}
+          />
+        </label>
+        <br />
+        <label>
+          Email:
+          <input
+            type="email"
+            name="email"
+            value={email}
+            onChange={handleChange}
+            required
+          />
+        </label>
+        <br />
+        <label>
+          Množstvo(kg):
+          <input
+            type="text"
+            name="amount"
+            value={amount}
+            onChange={handleChange}
+            pattern="[0-9]+" // Use the pattern attribute for numbers only
+            required // Make it a required field
+          />
+        </label>
+        <br />
+        <label>
+          Telefónne číslo:
+          <input
+            type="text"
+            name="telephone_number"
+            value={telephone_number}
+            onChange={handleChange}
+            required // Make it a required field
+          />
+        </label>
+        <br />
+        <label>
+          Prinesiem vlastné fľaše(osobný odber):
+          <input
+            type="checkbox"
+            name="own_bottle"
+            checked={own_bottle}
+            onChange={handleChange}
+          />
+        </label>
+        <br />
+        <button type="submit">Ďalej</button>
+      </form>
+
+      {/* Summary Popup */}
+      {showSummary && (
+        <div className="summary-popup">
+          <h2>Summary</h2>
+          <p>First Name: {first_name}</p>
+          <p>Second Name: {second_name}</p>
+          <p>Email: {email}</p>
+          <p>Amount: {amount}</p>
+          <p>Total to Pay: {totalToPay}</p>
+          <button onClick={handlePayNow}>Pay Now</button>
+          <button onClick={handlePayLater}>Pay Later</button>
+        </div>
+      )}
+
+      {/* Order Complete Message */}
+      {orderComplete && (
+        <div className="order-complete">
+          <h2>Objednávka prijatá!</h2>
+          <p>Zaplatiť môžete neskôr.</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default PostData;
