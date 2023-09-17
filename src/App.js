@@ -69,7 +69,7 @@ useEffect (() => {
   return (
     <Router basename="/eshop">
       <div className="App">
-        <nav>
+        <nav class="floating-nav">
           <ul>
             {!isCustomerLoggedIn && !isLoggedIn ? (
               // Condition for not logged in

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   getFirestore,
   doc,
+  getDocs,
   getDoc,
   deleteDoc,
   collection,
@@ -28,7 +29,7 @@ function CustomerOrders() {
   
     // Replace 'med' with your Firestore collection name
     const ordersCollection = collection(db, 'med');
-    const q = query(ordersCollection, where('email', '==', auth.currentUser.email)); // Use auth object to access the current user's email
+    const q = query(ordersCollection, where('email', '==', auth.currentUser.email));
   
     try {
       const querySnapshot = await getDocs(q);
@@ -38,6 +39,7 @@ function CustomerOrders() {
       console.error('Error fetching orders: ', error);
     }
   }
+  
   
 
   async function checkCustomerSignInStatus() {
@@ -79,7 +81,7 @@ function CustomerOrders() {
       <h1>Your Orders</h1>
       {isCustomerSignedIn ? (
         <div>
-          <p>You are signed in as a customer.</p>
+          <p>You are signed in as a {auth.currentUser.email}.</p>
           <table>
           <thead>
           <tr>

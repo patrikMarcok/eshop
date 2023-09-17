@@ -27,7 +27,7 @@ function PostData() {
   // Use the useLocation hook to get the state passed from the previous route
   const location = useLocation();
   const { state } = location;
-  const navigate = useNavigate();
+const navigate = useNavigate();
   useEffect(() => {
     // Fetch IBAN, price per kg, and price per bottle from Firestore "settings" collection
     const db = getFirestore(firebaseApp);
