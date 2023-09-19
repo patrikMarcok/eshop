@@ -9,6 +9,8 @@ import Contact from './Contact';
 import CustomerLogin from './CustomerLogin';
 import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import CustomerOrders from './CustomerOrders';
+import Welcome from './Welcome';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,6 +27,20 @@ function App() {
   // Callback function to log out as an admin
   const handleAdminLogout = () => {
     setIsLoggedIn(false);
+  };
+   // Callback function to set the user as logged in as a customer
+   const handleCustomerLogin = async () => {
+    const email1 = sessionStorage.getItem('email')
+        const email = JSON.parse(email1);
+        if(email!=null){
+          setIsCustomerLoggedIn(true);
+        }
+    setIsCustomerLoggedIn(true);
+  };
+
+  // Callback function to log out as a customer
+  const handleCustomerLogout = () => {
+    setIsCustomerLoggedIn(false);
   };
 useEffect (() => {
     //setIsCustomerLoggedIn(true);
@@ -53,16 +69,7 @@ useEffect (() => {
       }
     };
   })
-  // Callback function to set the user as logged in as a customer
-  const handleCustomerLogin = async () => {
-    handleCustomerLoginSet();
-
-  };
-
-  // Callback function to log out as a customer
-  const handleCustomerLogout = () => {
-    handleCustomerLoginSet();
-  };
+ 
 
   
 
@@ -88,6 +95,8 @@ useEffect (() => {
                 <li>
                   <Link to="/contact">Kontakt</Link>
                 </li>
+                
+                
               </React.Fragment>
             ) : isCustomerLoggedIn ? (
               // Condition for logged in as a customer
@@ -123,7 +132,7 @@ useEffect (() => {
           <Routes>
             <Route
               path="/"
-              element={isLoggedIn ? <GetData /> : <Navigate to="/post" />}
+              element={<Welcome />}
             />
             <Route path="/post" element={<PostData />} />
             <Route
@@ -140,7 +149,7 @@ useEffect (() => {
               path="/customerlogin"
               element={
                 !isCustomerLoggedIn ? (
-                  <CustomerLogin onLogin={handleCustomerLogin} />
+                  <CustomerLogin onCustomerLogin={handleCustomerLogin} />
                 ) : (
                   <Navigate to="/" />
                 )

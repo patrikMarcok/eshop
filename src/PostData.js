@@ -50,8 +50,13 @@ const navigate = useNavigate();
 
     
 
+      
+      setEmail(getEmail)
+      setFirstName(getFirstName)
+      setSecondName(getSecondName)
+      console.log(email)
     // Check if the email in the Firestore database is "-1"
-    const userDocRef = doc(db, 'users', 'actual'); // Replace 'actual' with the actual document ID
+    /*const userDocRef = doc(db, 'users', 'actual'); // Replace 'actual' with the actual document ID
     getDoc(userDocRef)
       .then((docSnapshot) => {
         if (docSnapshot.exists()) {
@@ -70,8 +75,24 @@ const navigate = useNavigate();
       })
       .catch((error) => {
         console.log('Error fetching user document:', error);
-      });
+      });*/
   }, [state]);
+
+  function getFirstName() {
+    const first = sessionStorage.getItem('firstName');
+    const firstName = JSON.parse(first);
+    return firstName
+  }
+  function getSecondName(){
+    const second = sessionStorage.getItem('secondName');
+    const secondName = JSON.parse(second);
+    return secondName
+  }
+  function getEmail(){
+    const email1 = sessionStorage.getItem('email');
+    const email = JSON.parse(email1);
+    return email
+  }
 
   const handleChange = (event) => {
     const { name, value, type, checked } = event.target;
@@ -209,13 +230,14 @@ const navigate = useNavigate();
     // Set email and other values in the Firestore database to "-1"
     const db = getFirestore(firebaseApp);
     const userDocRef = doc(db, 'users', 'actual'); // Replace 'actual' with the actual document ID
-    
-    try {
+    sessionStorage.clear()
+    navigate('/customerLogin')
+    /*try {
       await setDoc(userDocRef, {
         email: '-1',
         firstName: '',
         secondName: '',
-      });
+      });*/
       navigate('/customerLogin')
       // Clear the form and state
       setFirstName('');
@@ -227,9 +249,9 @@ const navigate = useNavigate();
       setTotalToPay(0);
 
       console.log('User logged out successfully.');
-    } catch (error) {
+    /*} catch (error) {
       console.error('Error logging out user:', error);
-    }
+    }*/
   };
 
   return (
