@@ -44,7 +44,7 @@ function App() {
   };
 useEffect (() => {
     //setIsCustomerLoggedIn(true);
-    const checkCustomerLoginStatus = async () => {
+     /*const checkCustomerLoginStatus = async () => {
       const db = getFirestore(); // You might need to pass your firebaseApp here
 
       // Replace 'users/actual' with the actual path to your user data in Firestore
@@ -67,7 +67,7 @@ useEffect (() => {
       } catch (error) {
         console.error('Error checking customer login status:', error);
       }
-    };
+    };*/
   })
  
 
@@ -104,6 +104,10 @@ useEffect (() => {
                 <li>
                   <Link to="/post">Orders</Link>
                 </li>
+                <li>
+                  <Link to="/contact">welcome user</Link>
+                </li>
+                
                 
               </React.Fragment>
             ) : (
@@ -113,7 +117,7 @@ useEffect (() => {
                   <Link to="/post">Nová objednávka</Link>
                 </li>
                 <li>
-                  <Link to="/">Objednávky</Link>
+                  <Link to="/getdata">Objednávky</Link>
                 </li>
                 <li>
                   <Link to="/history">Historia</Link>
@@ -131,7 +135,7 @@ useEffect (() => {
         <div className="content">
           <Routes>
             <Route
-              path="/"
+              path="*"
               element={<Welcome />}
             />
             <Route path="/post" element={<PostData />} />
@@ -160,6 +164,8 @@ useEffect (() => {
               element={isLoggedIn ? <CompletedData /> : <Navigate to="/post" />}
             />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/getdata" element={<GetData />} />
+            
             <Route path="/customerorders" element={<CustomerOrders />} />
             <Route
               path="/settings"
