@@ -43,25 +43,13 @@ function CustomerOrders() {
   
 
   async function checkCustomerSignInStatus() {
-    const db = getFirestore(firebaseApp);
-    const userDocRef = doc(db, 'users', 'actual');
-
-    try {
-      const userDocSnapshot = await getDoc(userDocRef);
-
-      if (userDocSnapshot.exists()) {
-        const userData = userDocSnapshot.data();
-
-        // Check if the 'email' field is not equal to '-1' to determine if the customer is signed in
-        if (userData.email !== '-1') {
+    const email1 = sessionStorage.getItem('email')
+        const email = JSON.parse(email1);
+        if(email!=null){
           setIsCustomerSignedIn(true);
         } else {
           setIsCustomerSignedIn(false);
         }
-      }
-    } catch (error) {
-      console.error('Error checking customer sign-in status:', error);
-    }
   }
 
   const handleDelete = async (id) => {
